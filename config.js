@@ -62,7 +62,7 @@ let divChapter3_1 =
 let divChapter3_2 =
   "<h3 style='max-width:100%; text-align:center'>Ukraine-Russia Comparison and the Detailed Data</h3>" +
   "<p style='max-width:85%; text-align:center; margin-left:auto; margin-right:auto'>Below is a detailed map to compare Russia and Ukraine's positon in wheat and maize export. Both import quantity and import proportion are provided for comparision. <br>According to the map, some typical countries are found to have both high dependence on Ukrain and Russia, such as Somalia, Egypt, Pakistan for wheat and Lithuania, Belarus and Libya for maize. For Somalia, Egypt and most other countries in Africa, they also face a high risk of food shortages and undernutrition.</p>" +
-  '<div style="max-width:100%; margin-left:auto; margin-right:auto; align=center "><iframe title="compare_map" src="Compare_map_zicheng.html" width="1800" height="850" frameborder="0" allowfullscreen></iframe></div>';
+  '<div style="max-width:100%; margin-left:auto; margin-right:auto; align=center "><iframe title="compare_map" src="Compare_map_Zicheng.html" width="1800" height="850" frameborder="0" allowfullscreen></iframe></div>';
 
 let divChapter4 =
   "<h3 style='max-width:100%; text-align:center'>Proportion of Population Suffering Undernourishment</h3>" +
