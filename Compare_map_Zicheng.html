@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Ukraine-Russia Comparision</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+
+  <link rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css">
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous">
+
+
+  <a href="https://www.vecteezy.com/free-vector/vector">Vector Vectors by Vecteezy</a>
+
+  <style>
+    body {
+      overflow: hidden;
+    }
+
+    body * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .legend {
+      background-color: #fff;
+      border-radius: 3px;
+      bottom: 30px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      padding: 10px;
+      position: absolute;
+      right: 10px;
+      z-index: 1;
+    }
+
+    .legend h4 {
+      margin: 0 0 10px;
+    }
+
+    .legend div span {
+      border-radius: 50%;
+      display: inline-block;
+      height: 10px;
+      margin-right: 5px;
+      width: 10px;
+    }
+
+    h1 {
+      font-size: 18px;
+      line-height: 20px;
+    }
+
+    h2 {
+      font-size: 15px;
+      line-height: 20px;
+    }
+
+    h3 {
+
+      font: 12px/12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+
+    #console {
+      position: absolute;
+      margin: 0px;
+      width: 15%;
+      height: 100%;
+      opacity: 0.8;
+      background-color: white;
+      padding-top: 20px;
+      padding-right: 20px;
+      padding-bottom: 40px;
+      padding-left: 40px;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    #barchart {
+      position: absolute;
+      margin-left: 0px;
+      margin-bottom: 5px;
+      margin-top: 0;
+      padding: 0;
+    }
+
+    #charttitle2 {
+      font: bold 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <!-- Create a div where the graph will take place -->
+
+
+  <div id="comparison_container">
+    <div id="before" class="map"></div>
+    <div id="after" class="map"></div>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="proportion-legend" class="legend">
+    <h4>Proportion</h4>
+    <div><span style="background-color: #723122"></span>1</div>
+    <div><span style="background-color: #8b4225"></span>0.7</div>
+    <div><span style="background-color: #a25626"></span>0.6</div>
+    <div><span style="background-color: #b86b25"></span>0.5</div>
+    <div><span style="background-color: #ca8323"></span>0.4</div>
+    <div><span style="background-color: #da9c20"></span>0.3</div>
+    <div><span style="background-color: #e6b71e"></span>0.2</div>
+    <div><span style="background-color: #eed322"></span>0.1</div>
+    <div><span style="background-color: #f2f12d"></span>0</div>
+  </div>
+
+  <div id="hunger-legend" class="hunger-legend">
+    <h4>Level</h4>
+    <div><span style="background-color: #be3929"></span>Humanitarian Catastrophe/Famine</div>
+    <div><span style="background-color: #d66e5a"></span>Emergency</div>
+    <div><span style="background-color: #e99e8e"></span>Crisis</div>
+    <div><span style="background-color: #fce6e2"></span>Stressed</div>
+    <div><span style="background-color: #FFFFFF"></span>None/Minimal</div>
+  </div>
+
+  <div id="quantity-legend" class="legend" style="display: none">
+    <h4>Quantity</h4>
+    <div><span style="background-color: #723122"></span>8,000,000</div>
+    <div><span style="background-color: #8b4225"></span>3,000,000</div>
+    <div><span style="background-color: #a25626"></span>1,400,000</div>
+    <div><span style="background-color: #b86b25"></span> 800,000</div>
+    <div><span style="background-color: #ca8323"></span> 500,000</div>
+    <div><span style="background-color: #da9c20"></span> 300,000</div>
+    <div><span style="background-color: #e6b71e"></span> 200,000</div>
+    <div><span style="background-color: #eed322"></span> 100,000</div>
+    <div><span style="background-color: #f2f12d"></span>0</div>
+  </div>
+
+
+
+  <div id="console">
+    <h1> Wheat and Maize Import from Russia and Ukraine in 2020 </h1>
+    <div id="row0">
+      <h2>--------------------------------------------------</h2>
+      <h2>Move the Scroller to Explore Maps</h2>
+      <div> <span style='font-size:20px;'>&#128072;</span>Russia -------- Ukraine <span
+          style='font-size:20px;'>&#128073;</span></div>
+      <h3>--------------------------------------------------</h3>
+    </div>
+    <div class="session">
+      <h2>Statistics Types</h2>
+      <table>
+        <tr>
+          <td>
+            <input type="radio" name="layers" id="layer1" value="proportion" checked><label>Proportion* &nbsp;
+              &nbsp;</label>
+            <input type="radio" name="layers" id="layer2" value="quantity"><label>Quantity </label>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div id="row1">
+      <h3>*Import Quantity from Ukraine or Russia / Import Quantity from All Countries</h3>
+      <h3>--------------------------------------------------</h3>
+
+    </div>
+
+    <div class="session">
+      <h2>Crop Types</h2>
+      <table>
+        <tr>
+          <td>
+            <input id="Wheat" type="radio" name="toggle" value="Wheat" checked />
+            <label for="Wheat">Wheat</label>
+            <input id="Maize" type="radio" name="toggle" value="Maize" />
+            <label for="Maize">Maize </label>
+
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div id="row2">
+      <h3>--------------------------------------------------</h3>
+    </div>
+
+    <div id="barchart">
+      <p id="charttitle2">Typical Countries with High Dependency
+        on Both Ukraine and Russia</p>
+      <button id="btn1">Wheat</button>
+      <button id="btn2">Maize</button>
+    </div>
+  </div>
+
+
+  <script>
+
+    var statistics_type_variable = 'proportion'
+    var crop_type_variable = 'Wheat'
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoiemljaGVuZzAwIiwiYSI6ImNreWtycjk2eDJ6M2Yydm4wY2hxOHhjejUifQ.6PFLUSHIxVP-nemrlLlFSA';
+
+    const map1 = new mapboxgl.Map({
+      container: 'before',
+      style: 'mapbox://styles/zicheng00/cl2p79yes000n14mfz38ie22z',
+      center: [64, 23],
+      minZoom: 0,
+      zoom: 2
+    });
+
+    const map2 = new mapboxgl.Map({
+      container: 'after',
+      style: 'mapbox://styles/zicheng00/cl2p79yes000n14mfz38ie22z',
+      center: [64, 23],
+      minZoom: 0,
+      zoom: 2
+    });
+
+    const container = '#comparison_container';
+
+    const map = new mapboxgl.Compare(map1, map2, container, {
+
+    });
+
+    map1.on('load', () => {
+
+      map1.loadImage(
+        'russia.png',
+        (error, image) => {
+          if (error) throw error;
+
+          // Add the image to the map style.
+          map1.addImage('Russia_flag', image);
+
+          // Add a data source containing one point feature.
+          map1.addSource('point', {
+            'type': 'geojson',
+            'data': {
+              'type': 'FeatureCollection',
+              'features': [
+                {
+                  'type': 'Feature',
+                  'geometry': {
+                    'type': 'Point',
+                    'coordinates': [37.632, 55.758]
+                  }
+                }
+              ]
+            }
+          });
+
+          // Add a layer to use the image to represent the data.
+          map1.addLayer({
+            'id': 'points',
+            'type': 'symbol',
+            'source': 'point', // reference the data source
+            'layout': {
+              'icon-image': 'Russia_flag', // reference the image
+              'icon-size': 1
+            }
+          });
+        }
+      );
+
+
+      
+      map1.addSource('population', {
+        'type': 'geojson',
+        'data': 'large_data/countries_crop_longer.geojson'
+      });
+
+    
+      map1.addControl(new mapboxgl.NavigationControl());
+      
+
+      map1.addLayer(
+        {
+          'id': 'Ru_quantity_Wheat',
+          'source': 'population',
+
+          'type': 'fill',
+          'layout': {
+            'visibility': 'none'
+          },
+
+          'filter': ["all", ['==', 'Reporter_Countries', 'Russian Federation'], ['==', 'variable', 'quantity'], ['==', 'Item', 'Wheat']],
+          'paint': {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'value'],
+              0,
+              '#F2F12D',
+              100000,
+              '#EED322',
+              200000,
+              '#E6B71E',
+              300000,
+              '#DA9C20',
+              500000,
+              '#CA8323',
+              800000,
+              '#B86B25',
+              1400000,
+              '#A25626',
+              3000000,
+              '#8B4225',
+              8000000,
+              '#723122'
+            ],
+            'fill-opacity': 0.75
+          }
+        },
+        'country-label'
+      );
+
+     
+      map1.addLayer(
+        {
+          'id': 'Ru_quantity_Maize',
+          'source': 'population',
+
+
+          'type': 'fill',
+          'layout': {
+            'visibility': 'none'
+          },
+
+          'filter': ["all", ['==', 'Reporter_Countries', 'Russian Federation'], ['==', 'variable', 'quantity'], ['==', 'Item', 'Maize']],
+          'paint': {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'value'],
+              0,
+              '#F2F12D',
+              100000,
+              '#EED322',
+              200000,
+              '#E6B71E',
+              300000,
+              '#DA9C20',
+              500000,
+              '#CA8323',
+              800000,
+              '#B86B25',
+              1400000,
+              '#A25626',
+              3000000,
+              '#8B4225',
+              8000000,
+              '#723122'
+            ],
+            'fill-opacity': 0.75
+          }
+        },
+        'country-label'
+      );
+
+      map1.addLayer(
+        {
+          'id': 'Ru_proportion_Wheat',
+          'source': 'population',
+
+
+          'type': 'fill',
+          'layout': {
+            'visibility': 'visible',
+
+          },
+          'filter': ["all", ['==', 'Reporter_Countries', 'Russian Federation'], ['==', 'variable', 'proportion'], ['==', 'Item', 'Wheat']],
+          'paint': {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'value'],
+              0,
+              '#F2F12D',
+              0.1,
+              '#EED322',
+              0.2,
+              '#E6B71E',
+              0.3,
+              '#DA9C20',
+              0.4,
+              '#CA8323',
+              0.5,
+              '#B86B25',
+              0.6,
+              '#A25626',
+              0.7,
+              '#8B4225',
+              1,
+              '#723122'
+            ],
+            'fill-opacity': 0.75
+          }
+        },
+        'country-label'
+      );
+
+      map1.addLayer(
+        {
+          'id': 'Ru_proportion_Maize',
+          'source': 'population',
+
+
+          'type': 'fill',
+          'layout': {
+            'visibility': 'none',
+
+          },
+          'filter': ["all", ['==', 'Reporter_Countries', 'Russian Federation'], ['==', 'variable', 'proportion'], ['==', 'Item', 'Maize']],
+          'paint': {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'value'],
+              0,
+              '#F2F12D',
+              0.1,
+              '#EED322',
+              0.2,
+              '#E6B71E',
+              0.3,
+              '#DA9C20',
+              0.4,
+              '#CA8323',
+              0.5,
+              '#B86B25',
+              0.6,
+              '#A25626',
+              0.7,
+              '#8B4225',
+              1,
+              '#723122'
+            ],
+            'fill-opacity': 0.75
+          }
+        },
+        'country-label'
+      );
+
+    });
+
+    map2.on('load', () => {
+      map2.addSource('population', {
+        'type': 'geojson',
+        'data': 'large_data/countries_crop_longer.geojson'
+      });
+
+      map2.addControl(new mapboxgl.NavigationControl());
+
+      map2.loadImage(
+        'ukraine.png',
+        (error, image) => {
+          if (error) throw error;
+
+          // Add the image to the map style.
+          map2.addImage('Ukraine_flag', image);
+
+          // Add a data source containing one point feature.
+          map2.addSource('point', {
+            'type': 'geojson',
+            'data': {
+              'type': 'FeatureCollection',
+              'features': [
+                {
+                  'type': 'Feature',
+                  'geometry': {
+                    'type': 'Point',
+                    'coordinates': [30.509, 50.467]
+                  }
+                }
+              ]
+            }
+          });
+
+          // Add a layer to use the image to represent the data.
+          map2.addLayer({
+            'id': 'points',
+            'type': 'symbol',
+            'source': 'point', // reference the data source
+            'layout': {
+              'icon-image': 'Ukraine_flag', // reference the image
+              'icon-size': 1
+            }
+          });
+        }
+      )
+
+      map2.addLayer(
+        {
+          'id': 'Uk_quantity_Wheat',
+          'source': 'population',
+
+          'type': 'fill',
+          'layout': {
+            'visibility': 'none'
+          },
+          'filter': ["all", ['==', 'Reporter_Countries', 'Ukraine'], ['==', 'variable', 'quantity'], ['==', 'Item', 'Wheat']],
+          'paint': {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'value'],
+              0,
+              '#F2F12D',
+              100000,
+              '#EED322',
+              200000,
+              '#E6B71E',
+              300000,
+              '#DA9C20',
+              500000,
+              '#CA8323',
+              800000,
+              '#B86B25',
+              1400000,
+              '#A25626',
+              3000000,
+              '#8B4225',
+              8000000,
+              '#723122'
+            ],
+            'fill-opacity': 0.75
+          }
+        },
+        'country-label'
+      );
+      map2.addLayer(
+        {
+          'id': 'Uk_quantity_Maize',
+          'source': 'population',
+
+          'type': 'fill',
+          'layout': {
+            'visibility': 'none'
+          },
+          'filter': ["all", ['==', 'Reporter_Countries', 'Ukraine'], ['==', 'variable', 'quantity'], ['==', 'Item', 'Maize']],
+          'paint': {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'value'],
+              0,
+              '#F2F12D',
+              100000,
+              '#EED322',
+              200000,
+              '#E6B71E',
+              300000,
+              '#DA9C20',
+              500000,
+              '#CA8323',
+              800000,
+              '#B86B25',
+              1400000,
+              '#A25626',
+              3000000,
+              '#8B4225',
+              8000000,
+              '#723122'
+            ],
+            'fill-opacity': 0.75
+          }
+        },
+        'country-label'
+      );
+
+      map2.addLayer(
+        {
+          'id': 'Uk_proportion_Wheat',
+          'source': 'population',
+
+          'type': 'fill',
+          'layout': {
+            'visibility': 'visible'
+          },
+
+          'filter': ["all", ['==', 'Reporter_Countries', 'Ukraine'], ['==', 'variable', 'proportion'], ['==', 'Item', 'Wheat']],
+          'paint': {
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'value'],
+              0,
+              '#F2F12D',
+              0.1,
+              '#EED322',
+              0.2,
+              '#E6B71E',
+              0.3,
+              '#DA9C20',
+              0.4,
+              '#CA8323',
+              0.5,
+              '#B86B25',
+              0.6,
+              '#A25626',
+              0.7,
+              '#8B4225',
+              1,
+              '#723122'
+            ],
+            'fill-opacity': 0.75
+          }
+        },
+        'country-label'
+      );
+
+      map2.addLayer(
+        {
+          'id': 'Uk_proportion_Maize',
+          'source': 'population',
+
+
+          'type': 'fill',
+          'layout': {
+            'visibility': 'none'
+          },
+
+          'filter': ["all", ['==', 'Reporter_Countries', 'Ukraine'], ['==', 'variable', 'proportion'], ['==', 'Item', 'Maize']],
+          'paint': {
+
+            'fill-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'value'],
+              0,
+              '#F2F12D',
+              0.1,
+              '#EED322',
+              0.2,
+              '#E6B71E',
+              0.3,
+              '#DA9C20',
+              0.4,
+              '#CA8323',
+              0.5,
+              '#B86B25',
+              0.6,
+              '#A25626',
+              0.7,
+              '#8B4225',
+              1,
+              '#723122'
+            ],
+            'fill-opacity': 0.75
+          }
+        },
+        'country-label'
+      );
+
+    });
+
+
+    const proportionLegendEl = document.getElementById('proportion-legend');
+    const quantityLegendEl = document.getElementById('quantity-legend');
+
+    document.getElementById("layer1").addEventListener("click", function () {
+      statistics_type_variable = 'proportion'
+
+      map1.setLayoutProperty('Ru_quantity_Wheat', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_proportion_Wheat', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_quantity_Maize', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_proportion_Maize', 'visibility', 'none');
+
+      map2.setLayoutProperty('Uk_quantity_Wheat', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_proportion_Wheat', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_quantity_Maize', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_proportion_Maize', 'visibility', 'none');
+
+      if (crop_type_variable == 'Maize') {
+        map1.setLayoutProperty('Ru_proportion_Maize', 'visibility', 'visible');;
+        map2.setLayoutProperty('Uk_proportion_Maize', 'visibility', 'visible');;
+      }
+      else {
+        map1.setLayoutProperty('Ru_proportion_Wheat', 'visibility', 'visible');
+        map2.setLayoutProperty('Uk_proportion_Wheat', 'visibility', 'visible');
+      }
+
+      proportionLegendEl.style.display = 'block';
+      quantityLegendEl.style.display = 'none';
+
+    });
+    document.getElementById("Wheat").addEventListener("click", function () {
+
+      crop_type_variable = 'Wheat'
+
+
+      map1.setLayoutProperty('Ru_quantity_Wheat', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_proportion_Wheat', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_quantity_Maize', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_proportion_Maize', 'visibility', 'none');
+
+      map2.setLayoutProperty('Uk_quantity_Wheat', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_proportion_Wheat', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_quantity_Maize', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_proportion_Maize', 'visibility', 'none');
+
+
+      if (statistics_type_variable == 'quantity') {
+
+        map1.setLayoutProperty('Ru_quantity_Wheat', 'visibility', 'visible');;
+        map2.setLayoutProperty('Uk_quantity_Wheat', 'visibility', 'visible');;
+      }
+      else {
+        map1.setLayoutProperty('Ru_proportion_Wheat', 'visibility', 'visible');
+        map2.setLayoutProperty('Uk_proportion_Wheat', 'visibility', 'visible');
+      }
+
+      update(data2)
+
+
+    });
+
+    document.getElementById("layer2").addEventListener("click", function () {
+
+      statistics_type_variable = 'quantity'
+
+      map1.setLayoutProperty('Ru_quantity_Wheat', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_proportion_Wheat', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_quantity_Maize', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_proportion_Maize', 'visibility', 'none');
+
+      map2.setLayoutProperty('Uk_quantity_Wheat', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_proportion_Wheat', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_quantity_Maize', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_proportion_Maize', 'visibility', 'none');
+
+      if (crop_type_variable == 'Maize') {
+        map1.setLayoutProperty('Ru_quantity_Maize', 'visibility', 'visible');;
+        map2.setLayoutProperty('Uk_quantity_Maize', 'visibility', 'visible');;
+      }
+      else {
+        map1.setLayoutProperty('Ru_quantity_Wheat', 'visibility', 'visible');
+        map2.setLayoutProperty('Uk_quantity_Wheat', 'visibility', 'visible');
+      }
+
+      proportionLegendEl.style.display = 'none';
+      quantityLegendEl.style.display = 'block';
+    });
+    document.getElementById("Maize").addEventListener("click", function () {
+
+      crop_type_variable = 'Maize'
+
+      map1.setLayoutProperty('Ru_quantity_Wheat', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_proportion_Wheat', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_quantity_Maize', 'visibility', 'none');
+      map1.setLayoutProperty('Ru_proportion_Maize', 'visibility', 'none');
+
+      map2.setLayoutProperty('Uk_quantity_Wheat', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_proportion_Wheat', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_quantity_Maize', 'visibility', 'none');
+      map2.setLayoutProperty('Uk_proportion_Maize', 'visibility', 'none');
+
+      if (statistics_type_variable == 'quantity') {
+        map1.setLayoutProperty('Ru_quantity_Maize', 'visibility', 'visible');
+        map2.setLayoutProperty('Uk_quantity_Maize', 'visibility', 'visible');
+      }
+      else {
+        map1.setLayoutProperty('Ru_proportion_Maize', 'visibility', 'visible');
+        map2.setLayoutProperty('Uk_proportion_Maize', 'visibility', 'visible');
+      }
+
+      update(data1)
+
+
+    });
+
+
+    var popup_Ru_quantity_Wheat = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
+    map1.on("mousemove", "Ru_quantity_Wheat", function (e) {
+      map1.getCanvas().style.cursor = "pointer";
+      var district = map1.queryRenderedFeatures(e.point, {
+        layers: ["Ru_quantity_Wheat"],
+      });
+      var props = district[0].properties;
+      console.log(district)
+      // it is strange only one popup work here
+      var content = "<b>" + "District Details" + "</b>" + "<br>";
+      content += "Name: " + props.Partner_Countries + "<br>";
+      content += "Item: " + props.Item + "<br>";
+      content += "Import_From: " + props.Reporter_Countries + "<br>";
+      content += "Quantity: " + props.value + " tonnes" + "<br>";
+
+      //content2 += "proportion: " + proportion_test2 + "% <br>";
+      //content2 += "quantity: " + state2.quantity + "<br>";
+      console.log(content)
+      popup_Ru_quantity_Wheat.setLngLat(e.lngLat).setHTML(content).addTo(map1);
+    });
+
+    map1.on("mouseleave", "Ru_quantity_Wheat", function () {
+      map1.getCanvas().style.cursor = "";
+      popup_Ru_quantity_Wheat.remove();
+    });
+
+
+
+    var popup_Ru_quantity_Maize = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
+    map1.on("mousemove", "Ru_quantity_Maize", function (e) {
+      map1.getCanvas().style.cursor = "pointer";
+      var district = map1.queryRenderedFeatures(e.point, {
+        layers: ["Ru_quantity_Maize"],
+      });
+      var props = district[0].properties;
+      console.log(district)
+      // it is strange only one popup work here
+      var content = "<b>" + "District Details" + "</b>" + "<br>";
+      content += "Name: " + props.Partner_Countries + "<br>";
+      content += "Item: " + props.Item + "<br>";
+      content += "Import_From: " + props.Reporter_Countries + "<br>";
+      content += "Quantity: " + props.value + " tonnes" + "<br>";
+
+      //content2 += "proportion: " + proportion_test2 + "% <br>";
+      //content2 += "quantity: " + state2.quantity + "<br>";
+      console.log(content)
+      popup_Ru_quantity_Maize.setLngLat(e.lngLat).setHTML(content).addTo(map1);
+    });
+
+    map1.on("mouseleave", "Ru_quantity_Maize", function () {
+      map1.getCanvas().style.cursor = "";
+      popup_Ru_quantity_Maize.remove();
+    });
+
+
+
+
+    var popup_Ru_proportion_Wheat = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
+    map1.on("mousemove", "Ru_proportion_Wheat", function (e) {
+      map1.getCanvas().style.cursor = "pointer";
+      var district = map1.queryRenderedFeatures(e.point, {
+        layers: ["Ru_proportion_Wheat"],
+      });
+      var props = district[0].properties;
+      console.log(district)
+      // it is strange only one popup work here
+      var content = "<b>" + "District Details" + "</b>" + "<br>";
+      content += "Name: " + props.Partner_Countries + "<br>";
+      content += "Item: " + props.Item + "<br>";
+      content += "Import_From: " + props.Reporter_Countries + "<br>";
+      //content += "Quantity: " + props.value + " tonnes" + "<br>";
+      content += "proportion: " + (100 * props.value).toFixed(2) + "% <br>";
+      console.log(content)
+      popup_Ru_proportion_Wheat.setLngLat(e.lngLat).setHTML(content).addTo(map1);
+    });
+
+    map1.on("mouseleave", "Ru_proportion_Wheat", function () {
+      map1.getCanvas().style.cursor = "";
+      popup_Ru_proportion_Wheat.remove();
+    });
+
+
+
+    var popup_Ru_proportion_Maize = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
+    map1.on("mousemove", "Ru_proportion_Maize", function (e) {
+      map1.getCanvas().style.cursor = "pointer";
+      var district = map1.queryRenderedFeatures(e.point, {
+        layers: ["Ru_proportion_Maize"],
+      });
+      var props = district[0].properties;
+      console.log(district)
+      // it is strange only one popup work here
+      var content = "<b>" + "District Details" + "</b>" + "<br>";
+      content += "Name: " + props.Partner_Countries + "<br>";
+      content += "Item: " + props.Item + "<br>";
+      content += "Import_From: " + props.Reporter_Countries + "<br>";
+      //content += "Quantity: " + props.value + " tonnes" + "<br>";
+      content += "proportion: " + (100 * props.value).toFixed(2) + "% <br>";
+      console.log(content)
+      popup_Ru_proportion_Maize.setLngLat(e.lngLat).setHTML(content).addTo(map1);
+    });
+
+    map1.on("mouseleave", "Ru_proportion_Maize", function () {
+      map1.getCanvas().style.cursor = "";
+      popup_Ru_proportion_Maize.remove();
+    });
+
+
+    var popup_Uk_quantity_Wheat = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
+    map2.on("mousemove", "Uk_quantity_Wheat", function (e) {
+      map2.getCanvas().style.cursor = "pointer";
+      var district = map2.queryRenderedFeatures(e.point, {
+        layers: ["Uk_quantity_Wheat"],
+      });
+      var props = district[0].properties;
+      console.log(district)
+      // it is strange only one popup work here
+      var content = "<b>" + "District Details" + "</b>" + "<br>";
+      content += "Name: " + props.Partner_Countries + "<br>";
+      content += "Item: " + props.Item + "<br>";
+      content += "Import_From: " + props.Reporter_Countries + "<br>";
+      content += "Quantity: " + props.value + " tonnes" + "<br>";
+
+      //content2 += "proportion: " + proportion_test2 + "% <br>";
+      //content2 += "quantity: " + state2.quantity + "<br>";
+      console.log(content)
+      popup_Uk_quantity_Wheat.setLngLat(e.lngLat).setHTML(content).addTo(map2);
+    });
+
+    map2.on("mouseleave", "Uk_quantity_Wheat", function () {
+      map2.getCanvas().style.cursor = "";
+      popup_Uk_quantity_Wheat.remove();
+    });
+
+
+
+    var popup_Uk_quantity_Maize = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
+    map2.on("mousemove", "Uk_quantity_Maize", function (e) {
+      map2.getCanvas().style.cursor = "pointer";
+      var district = map2.queryRenderedFeatures(e.point, {
+        layers: ["Uk_quantity_Maize"],
+      });
+      var props = district[0].properties;
+      console.log(district)
+      // it is strange only one popup work here
+      var content = "<b>" + "District Details" + "</b>" + "<br>";
+      content += "Name: " + props.Partner_Countries + "<br>";
+      content += "Item: " + props.Item + "<br>";
+      content += "Import_From: " + props.Reporter_Countries + "<br>";
+      content += "Quantity: " + props.value + " tonnes" + "<br>";
+
+      //content2 += "proportion: " + proportion_test2 + "% <br>";
+      //content2 += "quantity: " + state2.quantity + "<br>";
+      console.log(content)
+      popup_Uk_quantity_Maize.setLngLat(e.lngLat).setHTML(content).addTo(map2);
+    });
+
+    map2.on("mouseleave", "Uk_quantity_Maize", function () {
+      map2.getCanvas().style.cursor = "";
+      popup_Uk_quantity_Maize.remove();
+    });
+
+
+
+
+    var popup_Uk_proportion_Wheat = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
+    map2.on("mousemove", "Uk_proportion_Wheat", function (e) {
+      map2.getCanvas().style.cursor = "pointer";
+      var district = map2.queryRenderedFeatures(e.point, {
+        layers: ["Uk_proportion_Wheat"],
+      });
+      var props = district[0].properties;
+      console.log(district)
+      // it is strange only one popup work here
+      var content = "<b>" + "District Details" + "</b>" + "<br>";
+      content += "Name: " + props.Partner_Countries + "<br>";
+      content += "Item: " + props.Item + "<br>";
+      content += "Import_From: " + props.Reporter_Countries + "<br>";
+      //content += "Quantity: " + props.value + " tonnes" + "<br>";
+      content += "proportion: " + (100 * props.value).toFixed(2) + "% <br>";
+      console.log(content)
+      popup_Uk_proportion_Wheat.setLngLat(e.lngLat).setHTML(content).addTo(map2);
+    });
+
+    map2.on("mouseleave", "Uk_proportion_Wheat", function () {
+      map2.getCanvas().style.cursor = "";
+      popup_Uk_proportion_Wheat.remove();
+    });
+
+
+
+    var popup_Uk_proportion_Maize = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+    });
+
+    map2.on("mousemove", "Uk_proportion_Maize", function (e) {
+      map2.getCanvas().style.cursor = "pointer";
+      var district = map2.queryRenderedFeatures(e.point, {
+        layers: ["Uk_proportion_Maize"],
+      });
+      var props = district[0].properties;
+      console.log(district)
+      // it is strange only one popup work here
+      var content = "<b>" + "District Details" + "</b>" + "<br>";
+      content += "Name: " + props.Partner_Countries + "<br>";
+      content += "Item: " + props.Item + "<br>";
+      content += "Import_From: " + props.Reporter_Countries + "<br>";
+      //content += "Quantity: " + props.value + " tonnes" + "<br>";
+      content += "proportion: " + (100 * props.value).toFixed(2) + "% <br>";
+      console.log(content)
+      popup_Uk_proportion_Maize.setLngLat(e.lngLat).setHTML(content).addTo(map2);
+    });
+
+    map2.on("mouseleave", "Uk_proportion_Maize", function () {
+      map2.getCanvas().style.cursor = "";
+      popup_Uk_proportion_Maize.remove();
+    });
+
+
+    var data3 = [
+      { import_country: "Somalia", export_country: "Russia", value: 39.32, sum: 92.36 },
+      { import_country: "Egypt", export_country: "Russia", value: 62.36, sum: 85.59 },
+      { import_country: "Pakistan", export_country: "Russia", value: 41.16, sum: 84.82 },
+      { import_country: "Libya", export_country: "Russia", value: 15.07, sum: 63.32 },
+      { import_country: "Somalia", export_country: "Ukraine", value: 53.04, sum: 92.36 },
+      { import_country: "Egypt", export_country: "Ukraine", value: 23.23, sum: 85.59 },
+      { import_country: "Pakistan", export_country: "Ukraine", value: 43.66, sum: 84.82 },
+      { import_country: "Libya", export_country: "Ukraine", value: 48.25, sum: 63.32 }
+    ];
+
+
+    var data4 = [
+      { import_country: "Lithuania", export_country: "Russia", value: 25.95, sum: 90.87 },
+      { import_country: "Belarus", export_country: "Russia", value: 23.75, sum: 89.05 },
+      { import_country: "Libya", export_country: "Russia", value: 12.64, sum: 76.97 },
+      { import_country: "Turkey", export_country: "Russia", value: 19.23, sum: 62.98 },
+      { import_country: "Lithuania", export_country: "Ukraine", value: 64.92, sum: 90.87 },
+      { import_country: "Belarus", export_country: "Ukraine", value: 65.3, sum: 89.05 },
+      { import_country: "Libya", export_country: "Ukraine", value: 64.33, sum: 76.97 },
+      { import_country: "Turkey", export_country: "Ukraine", value: 43.75, sum: 62.98 }
+    ];
+
+    var svg1 = dimple.newSvg("#barchart", 280, 280);
+    var myChart = new dimple.chart(svg1, data3);
+    myChart.setBounds(50, 30, 220, 210)
+    var x = myChart.addMeasureAxis("x", "value");
+    var y = myChart.addCategoryAxis("y", ["import_country", "sum"]);
+    y.addOrderRule("sum");
+    myChart.defaultColors = [
+      new dimple.color("#C0C0C0"),
+      new dimple.color("#e6ccb3")
+    ];
+    myChart.addSeries("export_country", dimple.plot.bar);
+    myChart.addLegend(20, 10, 220, 50, "right");
+    myChart.draw();
+   
+    myChart.svg
+      .selectAll(".dimple-bar")
+      .attr('y', function (d) {
+        return (d3.select(this).attr("y")) * 1.2 - 30;
+      })
+      .attr("height", 28)
+
+
+    d3.select("#btn1").on("click", function () {
+      myChart.data = data3;
+      myChart.draw();
+      myChart.svg
+        .selectAll(".dimple-bar")
+        .attr('y', function (d) {
+          return (d3.select(this).attr("y")) * 1.2 - 30;
+        })
+        .attr("height", 28)
+    });
+
+    d3.select("#btn2").on("click", function () {
+      myChart.data = data4;
+      myChart.draw();
+      myChart.svg
+        .selectAll(".dimple-bar")
+        .attr('y', function (d) {
+          return (d3.select(this).attr("y")) * 1.2 - 30;
+        })
+        .attr("height", 28)
+    });
+  </script>
+
+
+
+
+</body>
+
+</html>

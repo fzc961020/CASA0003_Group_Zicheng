@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Network Analysis</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+  <script charset="utf-8" src="https://d3js.org/d3.v4.min.js"></script>
+  <script charset="utf-8" src="https://cdnjs.cloudflare.com/ajax/libs/dimple/2.3.0/dimple.latest.min.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+
+  <link rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css">
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous">
+
+
+  <style>
+    body {
+      overflow: hidden;
+    }
+
+    body * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .legend {
+      background-color: #fff;
+      border-radius: 3px;
+      bottom: 30px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      padding: 10px;
+      position: absolute;
+      right: 10px;
+      z-index: 1;
+    }
+
+    .legend h4 {
+      margin: 0 0 10px;
+    }
+
+    .legend div span {
+      border-radius: 50%;
+      display: inline-block;
+      height: 10px;
+      margin-right: 5px;
+      width: 10px;
+    }
+
+    h1 {
+      font-size: 18px;
+      line-height: 20px;
+    }
+
+    h2 {
+      font-size: 15px;
+      line-height: 20px;
+    }
+
+    h5 {
+      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+    #svg_test_1 {position:absolute}
+    
+    #console {
+      position: absolute;
+      margin: 0px;
+      width: 15%;
+      height: 100%;
+      opacity: 0.8;
+      background-color: white;
+      padding-top: 20px;
+      padding-right: 40px;
+      padding-bottom: 40px;
+      padding-left: 40px;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    #chartContainer p {
+      margin-left: 0px;
+      margin-bottom: 5px;
+      margin-top: 0;
+      padding: 0;
+    }
+
+    #charttitle {
+      font: bold 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+
+    #chartContainer2 p {
+      margin-left: 0px;
+      margin-bottom: 5px;
+      margin-top: 0;
+      padding: 0;
+    }
+
+    #charttitle2 {
+      font: bold 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+  </style>
+</head>
+
+<body style="background-color:#EFF0F0;"></body>
+
+<div id="Wheat-legend" class="legend">
+  <h4>Maize</h4>
+  <h4>Trade Group and Centre Countries</h4>
+  <div><span style="background-color: #439F24"></span>Argentina </div>
+  <div><span style="background-color: #3577B5"></span>United States America</div>
+  <div><span style="background-color: #B2C7E9"></span>South Africa</div>
+  <div><span style="background-color: #F79996 "></span>Ukraine</div>
+  <div><span style="background-color: #CC2B29 "></span>Russian Federation</div>
+  <div><span style="background-color: #F58006"></span>Brazil</div>
+  <div><span style="background-color: #A0DE87"></span>India</div>
+
+
+
+</div>
+
+<div id="Maize-legend" class="legend" style="display: none">
+  <h4>Wheat</h4>
+  <h4>Trade Group and Centre Countries</h4>
+  <div><span style="background-color: #CC2B29 "></span>Russian Federation</div>
+  <div><span style="background-color: #3577B5"></span>United States America</div>
+  <div><span style="background-color: #C7C7C7"></span>France</div>
+  <div><span style="background-color: #F79996"></span>Ukraine</div>
+  <div><span style="background-color: #B8958E"></span>Australia</div>
+  <div><span style="background-color: #B2C7E9"></span>South Africa</div>
+  <div><span style="background-color: #F58006"></span>Brazil</div>
+  <div><span style="background-color: #A0DE87"></span>India</div>
+  <div><span style="background-color: #439F24"></span>Argentina </div>
+</div>
+
+
+<div id="console">
+  <h1> Roles and Connections for Different Countries in Global Crop Marktet </h1>
+  <div id="row0">
+    <h2>--------------------------------------------------</h2>
+  </div>
+  <button onClick="window.location.reload();">Replay</button>
+  <div class="session">
+    <h2>Crop Types</h2>
+    <table>
+      <tr>
+        <td>
+          <input id="Wheat" type="radio" name="toggle" value="Wheat" checked />
+          <label for="Wheat">Maize</label>
+          <input id="Maize" type="radio" name="toggle" value="Maize" />
+          <label for="Maize">Wheat </label>
+
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div id="row1">
+    <h2>--------------------------------------------------</h2>
+    <div id="chartContainer">
+      <p id="charttitle">Countries with Highest Wheat/Maize Export 2020</p>
+    </div>
+  </div>
+
+  <div id="row2">
+
+    <div id="chartContainer2">
+      <p id="charttitle2">Number of Countries in Each Trade Group 2020</p>
+    </div>
+    <button id="btn1">Maize</button>
+    <button id="btn2">Wheat</button>
+    <h2>--------------------------------------------------</h2>
+  </div>
+
+</div>
+<style>
+  .links line {
+    stroke: #999;
+    stroke-opacity: 0.6;
+  }
+
+  .nodes circle {
+    stroke: #fff;
+    stroke-width: 1.5px;
+  }
+
+  text {
+    font-family: sans-serif;
+    font-size: 10px;
+  }
+</style>
+
+
+<svg id='svg_test_1' height="100%" width="100%" ></svg>
+
+<script>
+  var dimple_data = 'top10_quantity_maize.csv'
+
+  var width = "1800"
+  var height = "900"
+  var svg = d3.select("#svg_test_1")
+
+
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+  var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(40))
+    .force("charge", d3.forceManyBody().strength(-250))
+    .force("center", d3.forceCenter(width / 1.8, height / 2));
+
+  var data1 = "https://raw.githubusercontent.com/fzc961020/CASA0003-Group/main/maize_graph_data_new.json"
+  var data2 = "https://raw.githubusercontent.com/fzc961020/CASA0003-Group/main/wheat_graph_data_new.json"
+
+  function update_network(data) {
+
+
+    d3.json(data, function (error, graph) {
+      if (error) throw error;
+
+      // 以下可以调节先宽
+      var link = svg.append("g")
+        .attr("class", "links")
+        .selectAll("line")
+        .data(graph.links)
+        .enter().append("line")
+        .attr("stroke-width", function (d) { return Math.sqrt(d.weight); });
+
+      var node = svg.append("g")
+        .attr("class", "nodes")
+        .selectAll("g")
+        .data(graph.nodes)
+        .enter().append("g")
+      console.log(graph.nodes)
+      // adjust color and circle size here
+      // 
+      var circles = node.append("circle")
+        .attr("r",
+
+          function (d) {
+            if (d.degree < 5) {
+              return 5;
+            } else {
+              return d.degree * 1.5;
+            }
+          }
+        )
+        .attr("fill", function (d) {
+          return color(d.new_group);
+        })
+        .attr("fill", function (d) {
+          if (d.new_group == 6) {
+            return color(7);
+          } else if (d.new_group == 7) {
+            return color(6);
+            // exchange color for India and US
+
+          }
+          else if (d.new_group == 4) { // Russia 4 pink
+            return color(2);
+          }
+          else if (d.new_group == 2) { // Argentina 2 red
+            return color(27);
+          }
+          // exchange color for Russia and Argentina
+
+
+          else if (d.new_group == 8) {// Ukraine 8 grey
+            return color(4);
+          }
+          else if (d.new_group == 27) {// Austria 27 green
+            return color(8);
+          }
+          // define color of Ukraine as deep green
+          return color(d.new_group);
+
+        })
+
+
+      // Create a drag handler and append it to the node object instead
+      var drag_handler = d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended);
+
+      drag_handler(node);
+
+      var lables = node.append("text")
+        .text(function (d) {
+          return d.id;
+        })
+        .attr('x', 6)
+        .attr('y', 3)
+        .style("font-size", function (d) {
+          if (d.degree < 5) {
+            return "8px";
+          } else {
+            return "12px";
+          }
+        })
+
+      node.append("title")
+        .text(function (d) { return d.id; });
+
+      simulation
+        .nodes(graph.nodes)
+        .on("tick", ticked);
+
+      simulation.force("link")
+        .links(graph.links);
+
+      function ticked() {
+        link
+          .attr("x1", function (d) { return d.source.x; })
+          .attr("y1", function (d) { return d.source.y; })
+          .attr("x2", function (d) { return d.target.x; })
+          .attr("y2", function (d) { return d.target.y; });
+
+        node
+          .attr("transform", function (d) {
+            return "translate(" + d.x + "," + d.y + ")";
+          })
+      }
+
+    });
+
+    function dragstarted(d) {
+      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+      if (!d3.event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+
+
+  }
+  update_network(data1)
+
+  const WheatLegendEl = document.getElementById('Wheat-legend');
+  const MaizeLegendEl = document.getElementById('Maize-legend');
+
+  document.getElementById("Maize").addEventListener("click", function () {
+    svg.selectAll("*").remove();
+    update_network(data2)
+    MaizeLegendEl.style.display = 'block';
+    WheatLegendEl.style.display = 'none';
+  })
+
+  document.getElementById("Wheat").addEventListener("click", function () {
+    window.location.reload();
+    svg.selectAll("*").remove();
+    update_network(data1)
+    WheatLegendEl.style.display = 'block';
+    MaizeLegendEl.style.display = 'none';
+  })
+
+  var data3 = [
+    { group: "United States", value: 51.84 },
+    { group: "Argentina", value: 36.88 },
+    { group: "Brazil", value: 34.41 },
+    { group: "Ukraine", value: 27.95 },
+    { group: "Romania", value: 5.65 },
+    { group: "France", value: 4.56 },
+    { group: "Hungary", value: 4.04 },
+    { group: "Serbia", value: 3.61 },
+    { group: "South Africa", value: 2.58 },
+    { group: "Bulgaria", value: 2.56 },
+  ];
+
+  var data4 = [
+    { group: "Russia", value: 37.27 },
+    { group: "United States", value: 26.13 },
+    { group: "Canada", value: 26.11 },
+    { group: "France", value: 19.79 },
+    { group: "Ukraine", value: 18.06 },
+    { group: "Australia", value: 10.40 },
+    { group: "Argentina", value: 10.20 },
+    { group: "Germany", value: 9.26 },
+    { group: "Kazakhstan", value: 5.20 },
+    { group: "Poland", value: 4.68 },
+  ];
+
+  var svg1 = dimple.newSvg("#chartContainer", 420, 230);
+  var myChart = new dimple.chart(svg1, data3);
+  myChart.setBounds(70, 15, 180, 180);
+  myChart.defaultColors = [
+    new dimple.color("#C0C0C0")
+  ];
+
+  var y = myChart.addCategoryAxis("y", "group");
+  var x = myChart.addMeasureAxis("x", "value");
+  y.addOrderRule("value");
+  y.title = "Countries";
+  x.title = "Quantity/Million tonnes";
+
+
+  var z = myChart.addSeries(null, dimple.plot.bar);
+  myChart.draw(500);
+  svg1.selectAll("path.domain").style("stroke", "#CCC");
+  svg1.selectAll("g.tick line").style("stroke", "#CCC");
+
+  myChart.svg.selectAll(".dimple-bar").filter(function (d) {
+    console.log(d)
+    return (d.cy == 'Ukraine')
+  }).style("fill", "#ff6361");
+
+
+  d3.select("#btn1").on("click", function () {
+    myChart.data = data3;
+    myChart.draw();
+    myChart2.data = data5;
+    myChart2.draw();
+  });
+
+  d3.select("#btn2").on("click", function () {
+    myChart.data = data4;
+    myChart.draw();
+    myChart2.data = data6;
+    myChart2.draw();
+  });
+
+  var data5 = [
+    { group: "United States", value: 24 },
+    { group: "Argentina", value: 34 },
+    { group: "Brazil", value: 21 },
+    { group: "Ukraine", value: 30 },
+    { group: "South Africa", value: 12 },
+    { group: "India", value: 17 },
+    { group: "Serbia", value: 14 },
+    { group: "Russia", value: 13 },
+  ];
+
+  var data6 = [
+    { group: "Russia", value: 34 },
+    { group: "nited States", value: 34 },
+    { group: "France", value: 30 },
+    { group: "Ukraine", value: 19 },
+    { group: "Australia", value: 12 },
+    { group: "Argentina", value: 15 },
+    { group: "South Africa", value: 6 },
+    { group: "India", value: 6 },
+  ];
+
+  var svg2 = dimple.newSvg("#chartContainer2", 420, 230);
+  var myChart2 = new dimple.chart(svg2, data5);
+  myChart2.setBounds(70, 15, 180, 180);
+  myChart2.defaultColors = [
+    new dimple.color("#C0C0C0")
+  ];
+
+  var y2 = myChart2.addCategoryAxis("y", "group");
+  var x2 = myChart2.addMeasureAxis("x", "value");
+  y2.addOrderRule("value");
+  x2.title = "Country Number";
+
+
+  var z2 = myChart2.addSeries(null, dimple.plot.bar);
+  myChart2.draw(500);
+  svg2.selectAll("path.domain").style("stroke", "#CCC");
+  svg2.selectAll("g.tick line").style("stroke", "#CCC");
+
+  myChart2.svg.selectAll(".dimple-bar").filter(function (d2) {
+    console.log(d2)
+    return (d2.cy == 'Ukraine')
+  }).style("fill", "#ff6361");
+
+
+
+
+</script>
+</body>
+
+</html>

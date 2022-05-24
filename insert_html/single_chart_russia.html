@@ -1,0 +1,43 @@
+<html>
+<div id="chartContainer">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
+    <script type="text/javascript">
+
+        var data1 = [
+            { import_country: "Armenia", value: 100 },
+            { import_country: "Mongolia", value: 100},
+            { import_country: "Benin", value: 100 },
+            { import_country: "Kazakhstan", value: 100 },
+            { import_country: "North Korea", value: 99 },
+            { import_country: "Georgia", value: 96 },
+            { import_country: "Rwanda", value: 92 },
+            { import_country: "Belarus", value: 84 },
+            { import_country: "Cape Verde", value: 79 },
+            { import_country: "Malawi", value: 78 },
+            { import_country: "Congo", value: 75 },
+            { import_country: "Turkey", value: 73 },
+            { import_country: "Finland", value: 72 },
+            { import_country: "Tanzania", value: 71 }
+        ];
+
+
+
+
+        var svg = dimple.newSvg("#chartContainer", 380, 300);
+        var myChart = new dimple.chart(svg, data1);
+        myChart.setBounds(70, 0, 300, 280)
+        x = myChart.addMeasureAxis("x", "value");
+        y = myChart.addCategoryAxis("y", 'import_country');
+        myChart.addSeries(null, dimple.plot.bar);
+        y.addOrderRule("value");
+        myChart.defaultColors = [
+            new dimple.color("#8B4225")
+        ];
+        x.title = "Dependency/Percent";
+        myChart.draw(500);
+        myChart.svg.selectAll(".dimple-bar").style("opacity", 0.6);
+    </script>
+</div>
+
+</html>

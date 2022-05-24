@@ -1,0 +1,245 @@
+<!--
+	THIS EXAMPLE WAS DOWNLOADED FROM https://echarts.apache.org/examples/en/editor.html?c=bar-race-country&lang=js
+-->
+<!DOCTYPE html>
+<html lang="en" style="height: 100%">
+
+<head>
+  <meta charset="utf-8">
+
+  <style>
+
+
+    .legend {
+      background-color: #fff;
+      border-radius: 3px;
+      bottom: 50%;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      font: 18px/30px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      padding: 10px;
+      position: absolute;
+      right: 10px;
+      z-index: 1;
+    }
+
+    .legend h4 {
+      margin: 0 0 10px;
+    }
+
+    .legend div span {
+      border-radius: 50%;
+      display: inline-block;
+      height: 20px;
+      margin-right: 5px;
+      width: 20px;
+      opacity:0.8
+    }
+    .container{position:absolute}
+
+  </style>
+</head>
+
+<body style="height: 90%; margin: 0">
+
+  <button onClick="window.location.reload();">Replay</button>
+  
+  <div id="Continent-legend" class="legend" style="display: true">
+    <h4>Continent Country Belong to</h4>
+    <div><span style="background-color: #e76f51 "></span>Asia</div>
+    <div><span style="background-color: #264653"></span>Europe</div>
+    <div><span style="background-color: #e9c46a"></span>Africa</div>
+    <div><span style="background-color: #2a9d8f "></span>America</div>
+    <div><span style="background-color: #f4a261"></span>Oceania</div>
+  </div>
+
+  <div id="container" style="height: 90%"></div>
+
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/jquery"></script>
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
+
+  <!-- Uncomment this line if you want to dataTool extension
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.3.2/dist/extension/dataTool.min.js"></script>
+  -->
+  <!-- Uncomment this line if you want to use gl extension
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+  -->
+  <!-- Uncomment this line if you want to echarts-stat extension
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts-stat@latest/dist/ecStat.min.js"></script>
+  -->
+  <!-- Uncomment this line if you want to use map
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/js/china.js"></script>
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+  -->
+  <!-- Uncomment these two lines if you want to use bmap extension
+  <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=YOUR_API_KEY"></script>
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.3.2/dist/extension/bmap.min.js"></script>
+  -->
+
+  <script type="text/javascript">
+    var dom = document.getElementById('container');
+    var myChart = echarts.init(dom, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+    var app = {};
+    var option;
+
+    const updateFrequency = 2000;
+    const dimension = 3;
+    const countryColors = {
+      Asia: '#e76f51',
+      Europe: '#264653',
+      Africa: '#e9c46a',
+      America: '#2a9d8f',
+      Oceania: '#f4a261'
+    };
+    $.when(
+      $.getJSON('https://raw.githubusercontent.com/fzc961020/CASA0003-Group/main/data.json'),
+      $.getJSON('https://raw.githubusercontent.com/fzc961020/CASA0003-Group/main/food_security_bar_data_2.json')
+    ).done(function (res0, res1) {
+      const flags = res0[0];
+      const data = res1[0];
+      const years = [];
+
+      for (let i = 0; i < data.length; ++i) {
+        if (years.length === 0 || years[years.length - 1] !== data[i][2]) {
+          years.push(data[i][2]);
+        }
+      }
+      // year is clear
+
+      function getFlag(countryName) {
+        if (!countryName) {
+          return '';
+        }
+        return (
+          flags.find(function (item) {
+            return item.name === countryName;
+          }) || {}
+        ).emoji;
+      }
+      // function to find corresponding country
+
+      let startIndex = 1;
+      let startYear = years[startIndex];
+
+      option = {
+        grid: {
+          top: 30,
+          bottom: 30,
+          left: 150,
+          right: 80
+        },
+        xAxis: {
+          max: 'dataMax',
+          axisLabel: {
+            formatter: function (n) {
+              return Math.round(n) + '';
+            }
+          }
+        },
+        dataset: {
+          source: data.slice(1).filter(function (d) {
+            return d[2] === startYear;
+          })
+        },
+
+        yAxis: {
+          type: 'category',
+          inverse: true,
+          max: 10,
+          axisLabel: {
+            show: true,
+            fontSize: 14,
+            formatter: function (value) {
+
+              return value + '{flag|' + getFlag(value) + '}';
+            },
+            rich: {
+              flag: {
+                fontSize: 25,
+                padding: 5
+              }
+            }
+          },
+          animationDuration: 500,
+          animationDurationUpdate: 500
+        },
+        series: [
+          {
+            realtimeSort: true,
+            seriesLayoutBy: 'column',
+            type: 'bar',
+            itemStyle: {
+              color: function (param) {
+                return countryColors[param.value[5]] || '#5470c6';
+              },
+              opacity: 0.8
+            },
+            encode: {
+              x: dimension,
+              y: 4
+            },
+            label: {
+              show: true,
+              precision: 1,
+              position: 'right',
+              valueAnimation: true,
+              fontFamily: 'monospace'
+            }
+          }
+        ],
+        // Disable init animation.
+        animationDuration: 0,
+        animationDurationUpdate: updateFrequency,
+        animationEasing: 'linear',
+        animationEasingUpdate: 'linear',
+        graphic: {
+          elements: [
+            {
+              type: 'text',
+              right: 160,
+              bottom: 60,
+              style: {
+                text: startYear,
+                font: 'bolder 80px monospace',
+                fill: 'rgba(100, 100, 100, 0.25)'
+              },
+              z: 100
+            }
+          ]
+        }
+      };
+
+      console.log(option)
+      console.log(years)
+      console.log(startYear)
+
+      // console.log(option);
+      myChart.setOption(option);
+      for (let i = startIndex; i < years.length - 1; ++i) {
+        (function (i) {
+          setTimeout(function () {
+            updateYear(years[i + 1]);
+          }, (i - startIndex) * updateFrequency);
+        })(i);
+      }
+      function updateYear(year) {
+        let source = data.slice(1).filter(function (d) {
+          return d[2] === year;
+        });
+        option.series[0].data = source;
+        option.graphic.elements[0].style.text = year;
+        myChart.setOption(option);
+      }
+    });
+
+    if (option && typeof option === 'object') {
+      myChart.setOption(option);
+    }
+
+    window.addEventListener('resize', myChart.resize);
+  </script>
+</body>
+
+</html>

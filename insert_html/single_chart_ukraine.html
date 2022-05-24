@@ -1,0 +1,64 @@
+<html>
+<div id="chartContainer">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
+    <script type="text/javascript">
+
+        var data2 = [
+            { import_country: "Madagascar", value: 86 },
+            { import_country: "Belarus", value: 65 },
+            { import_country: "Lithuania", value: 65 },
+            { import_country: "Libya", value: 64 },
+            { import_country: "China, mainland", value: 51 },
+            { import_country: "Tunisia", value: 50 },
+            { import_country: "Netherlands", value: 50 },
+            { import_country: "Turkey", value: 44 },
+            { import_country: "Israel", value: 42 },
+            { import_country: "Portugal", value: 39 },
+            { import_country: "Spain", value: 34 },
+            { import_country: "United Kingdom", value: 34 },
+            { import_country: "Oman", value: 33 },
+            { import_country: "Belgium", value: 29 }
+        ];
+
+
+
+
+
+        var svg = dimple.newSvg("#chartContainer", 380, 300);
+        var myChart = new dimple.chart(svg, data2);
+        myChart.setBounds(80, 0, 300, 280)
+        x = myChart.addMeasureAxis("x", "value");
+        y = myChart.addCategoryAxis("y", 'import_country');
+        myChart.addSeries(null, dimple.plot.bar);
+        y.addOrderRule("value");
+        myChart.defaultColors = [
+            new dimple.color("#e6b71e")
+        ];
+        x.title = "Dependency/Percent";
+        myChart.draw(500);
+
+        myChart.svg.selectAll(".dimple-bar").filter(function (d) {
+            return (d.cx >70)
+        }).style("fill", "#8b4225")
+        myChart.svg.selectAll(".dimple-bar").filter(function (d) {
+            return ((d.cx >60) & (d.cx <=70))
+        }).style("fill", "#a25626");
+        myChart.svg.selectAll(".dimple-bar").filter(function (d) {
+            return ((d.cx >50) & (d.cx <=60))
+        }).style("fill", "#b86b25");
+        myChart.svg.selectAll(".dimple-bar").filter(function (d) {
+            return ((d.cx >40) & (d.cx <=50))
+        }).style("fill", "#ca8323");
+        myChart.svg.selectAll(".dimple-bar").filter(function (d) {
+            return ((d.cx >30) & (d.cx <=40))
+        }).style("fill", "#da9c20");
+        myChart.svg.selectAll(".dimple-bar").filter(function (d) {
+            return ((d.cx >20) & (d.cx <=30))
+        }).style("fill", "#e6b71e");
+        myChart.svg.selectAll(".dimple-bar").style("opacity", 0.6);
+
+    </script>
+</div>
+
+</html>
